@@ -5,8 +5,7 @@ services:
     rootDir: recommendation-service
     plan: free
     envVars:
-      - key: GEMINI_API_KEY
-        sync: false
+      - fromGroup: smart-travel-secrets
       - key: GEMINI_MODEL
         value: gemini-3.1-flash-lite
       - key: CORS_ALLOWED_ORIGINS
@@ -18,12 +17,11 @@ services:
     rootDir: backend-core
     plan: free
     envVars:
+      - fromGroup: smart-travel-secrets
       - key: SPRING_DATASOURCE_URL
         value: jdbc:postgresql://aws-0-ap-northeast-2.pooler.supabase.com:5432/postgres
       - key: SPRING_DATASOURCE_USERNAME
         value: postgres.yixdtqoubebgqnxitqgn
-      - key: SPRING_DATASOURCE_PASSWORD
-        sync: false
       - key: JWT_SECRET
         value: A0QluOH5UtZ2D2gUJPlc7THmZEWZgXUwK1L0bCxVZGs=
       - key: SPRING_FLYWAY_BASELINE_ON_MIGRATE
@@ -32,15 +30,11 @@ services:
         value: "0"
       - key: COOKIE_SECURE
         value: "true"
-      - key: GEMINI_API_KEY
-        sync: false
       - key: GEMINI_MODEL
         value: gemini-3.1-flash-lite
       - key: MAIL_USERNAME
         value: htv.nt9h@gmail.com
-      - key: MAIL_PASSWORD
-        sync: false
       - key: CORS_ALLOWED_ORIGINS
         value: https://smart-travel-six.vercel.app,http://localhost:3000,http://localhost:5173
       - key: RECOMMENDATION_SERVICE_URL
-        sync: false
+        value: http://smart-travel-ai:5000
