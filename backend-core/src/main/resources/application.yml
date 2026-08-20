@@ -55,7 +55,7 @@ feign:
         readTimeout: 10000
 
 server:
-  port: ${SERVER_PORT:8000}
+  port: ${PORT:8080}
 
 jwt:
   secret: ${JWT_SECRET:your-256-bit-secret-key-change-this-in-production}

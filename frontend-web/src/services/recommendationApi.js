@@ -65,7 +65,7 @@ export async function getRecommendations({ lat, lng, budget, radiusKm, category,
       'medium': 500000,
       'high': 2000000
   };
-  const data = await fetchWithTimeout(`${API_BASE_URL}/api/v1/recommendation`, {
+  const data = await fetchWithTimeout(`${CORE_API_URL}/api/v1/recommendation`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -81,7 +81,7 @@ export async function getRecommendations({ lat, lng, budget, radiusKm, category,
   return { places: data.places || [], totalCount: data.totalCount || 0, radiusUsed: radiusKm };
 }
 export async function generateItinerary({ lat, lng, preferences, budget, radiusKm }) {
-  const data = await fetchWithTimeout(`${API_BASE_URL}/itinerary`, {
+  const data = await fetchWithTimeout(`${RECOMMENDATION_API_URL}/itinerary`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

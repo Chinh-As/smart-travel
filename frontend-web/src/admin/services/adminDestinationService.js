@@ -1,6 +1,7 @@
 import { getAccessToken } from '../../context/AuthContext.jsx';
+import { CORE_API_URL } from '../../services/apiConfig.js';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = CORE_API_URL;
 
 const getAuthHeaders = () => {
   const token = getAccessToken();

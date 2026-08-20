@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, getAccessToken } from '../../context/AuthContext.jsx';
 import { NotificationDropdown } from './NotificationDropdown/NotificationDropdown';
+import { CORE_API_URL, RECOMMENDATION_API_URL } from '../../services/apiConfig.js';
 import { SystemInfoModal } from './SystemInfoModal/SystemInfoModal';
 
 const AdminTopbar = ({ toggleSidebar }) => {
@@ -58,7 +59,7 @@ const AdminTopbar = ({ toggleSidebar }) => {
     const checkServices = async () => {
       // 1. Check AI Health
       try {
-        const res = await fetch('http://localhost:5000/health', { method: 'GET' });
+        const res = await fetch(`${RECOMMENDATION_API_URL}/health`, { method: 'GET' });
         if (res.ok) {
           setAiStatus('ok');
         } else {
@@ -71,7 +72,7 @@ const AdminTopbar = ({ toggleSidebar }) => {
       // 2. Check Database & Core Health via stats
       try {
         const token = getAccessToken();
-        const res = await fetch('http://localhost:8000/api/v1/admin/stats', {
+        const res = await fetch(`${CORE_API_URL}/api/v1/admin/stats`, {
           headers: {
             'Content-Type': 'application/json',
             ...(token ? { 'Authorization': `Bearer ${token}` } : {})

@@ -1,6 +1,7 @@
 import { getAccessToken } from './authApi.js';
+import { CORE_API_URL } from './apiConfig.js';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = CORE_API_URL;
 
 const getHeaders = () => {
   const token = getAccessToken();
