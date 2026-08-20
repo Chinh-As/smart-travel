@@ -1,8 +1,0 @@
-.env
-.env.local
-.env.supabase
-!.env.example
-!.env.*.example
-.vscode/launch.json
-.vscode/settings.json 
-frontend-web/dist
