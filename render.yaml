@@ -39,7 +39,4 @@ services:
       - key: MAIL_PASSWORD
         sync: false
       - key: RECOMMENDATION_SERVICE_URL
-        fromService:
-          name: smart-travel-ai
-          type: web
-          property: url
+        sync: false
