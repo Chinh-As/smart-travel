@@ -1,0 +1,15 @@
+{
+  "name": "smart-travel-ai-proxy",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Proxy giu API key Anthropic o backend cho tinh nang Nhan dien dia danh (AI Vision).",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

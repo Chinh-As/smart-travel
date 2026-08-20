@@ -1,0 +1,14 @@
+.sk-card { background: var(--white); border-radius: var(--r-lg); overflow: hidden; box-shadow: 0 2px 12px var(--overlay-black-06); }
+.sk-card__img { height: 200px; border-radius: 0; }
+.sk-card__body { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.sk-card__title { height: 18px; border-radius: var(--r-sm); }
+.sk-card__title--s { width: 60%; height: 16px; }
+.sk-card__row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.sk-card__stars { height: 13px; width: 90px; border-radius: var(--r-sm); }
+.sk-card__badge { height: 13px; width: 75px; border-radius: var(--r-sm); }
+.sk-card__line { height: 12px; border-radius: var(--r-sm); }
+.sk-card__line--s { width: 75%; }
+.sk-card__btn { height: 36px; border-radius: var(--r-full); margin-top: 4px; }
+.sk-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--sp-lg); }
+@media (max-width: 640px) { .sk-grid { grid-template-columns: 1fr 1fr; gap: var(--sp-md); } }
+@media (max-width: 420px) { .sk-grid { grid-template-columns: 1fr; } }

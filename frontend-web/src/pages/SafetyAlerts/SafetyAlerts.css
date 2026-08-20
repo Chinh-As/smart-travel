@@ -1,0 +1,290 @@
+.sa-page {
+  min-height: calc(100vh - 64px);
+  background: var(--bg-soft);
+  padding: clamp(32px, 5vh, 64px) 0;
+  position: relative;
+}
+
+.sa-header {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto clamp(24px, 4vh, 36px);
+}
+
+.sa-header__icon {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: var(--primary-soft);
+  color: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.sa-title { font-size: clamp(24px, 3vw, 34px); font-weight: 800; color: var(--text-h); margin-bottom: 10px; }
+.sa-sub { font-size: 15px; color: var(--text-muted); line-height: 1.6; }
+
+/* ───────────────── Nút báo động ───────────────── */
+.sa-panic {
+  max-width: 760px;
+  margin: 0 auto clamp(20px, 3vh, 28px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  background: linear-gradient(135deg, #fff1f2, #fee2e2);
+  border: 1px solid #fecaca;
+  border-radius: var(--r-lg);
+  padding: clamp(16px, 2.5vw, 24px);
+  transition: all var(--t-base);
+}
+.sa-panic--on {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+}
+.sa-panic__text h3 {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 16px; font-weight: 800; color: #b91c1c; margin-bottom: 6px;
+}
+.sa-panic__text p { font-size: 13px; color: #7f1d1d; line-height: 1.5; opacity: 0.9; }
+
+.sa-panic__btn {
+  flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px;
+  width: 110px; height: 110px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  background: radial-gradient(circle at 50% 35%, #ef4444, #b91c1c);
+  color: #fff;
+  font-size: 14px; font-weight: 800;
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+  transition: transform var(--t-fast);
+}
+.sa-panic__btn:hover { transform: scale(1.04); }
+.sa-panic__btn:active { transform: scale(0.97); }
+.sa-panic__btn.is-on { animation: sa-pulse 1s infinite; }
+
+@keyframes sa-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+  70%  { box-shadow: 0 0 0 18px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* Lớp phủ nhấp nháy khi đang báo động */
+.sa-flash {
+  position: fixed; inset: 0;
+  z-index: 2000;
+  display: flex; align-items: center; justify-content: center;
+  animation: sa-flash-bg 0.7s steps(1) infinite;
+}
+@keyframes sa-flash-bg {
+  0%, 49%  { background: rgba(220, 38, 38, 0.92); }
+  50%,100% { background: rgba(127, 29, 29, 0.92); }
+}
+.sa-flash__inner { text-align: center; color: #fff; padding: 24px; }
+.sa-flash__inner svg { animation: sa-shake 0.4s infinite; }
+.sa-flash__inner h2 { font-size: clamp(24px, 6vw, 40px); font-weight: 900; letter-spacing: 1px; margin: 12px 0 6px; }
+.sa-flash__inner p { font-size: 15px; opacity: 0.9; margin-bottom: 20px; }
+.sa-flash__stop {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 28px;
+  border-radius: var(--r-full);
+  border: 2px solid #fff;
+  background: #fff;
+  color: #b91c1c;
+  font-size: 16px; font-weight: 800;
+  cursor: pointer;
+}
+@keyframes sa-shake {
+  0%,100% { transform: rotate(-8deg); }
+  50%     { transform: rotate(8deg); }
+}
+
+/* ───────────────── Thẻ định vị ───────────────── */
+.sa-locate-card {
+  max-width: 760px;
+  margin: 0 auto clamp(20px, 3vh, 28px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  background: var(--white);
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--r-lg);
+  padding: clamp(18px, 2.5vw, 28px);
+  box-shadow: var(--shadow-card);
+}
+.sa-locate-card__text { min-width: 0; }
+.sa-locate-card__text h3 {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 16px; font-weight: 700; color: var(--text-h); margin-bottom: 6px;
+}
+.sa-locate-card__text h3 svg { color: var(--primary); }
+.sa-locate-card__text p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+.sa-area { display: flex; align-items: center; gap: 6px; font-weight: 700; color: var(--primary-dark) !important; }
+.sa-area svg { color: var(--primary); flex-shrink: 0; }
+.sa-coords { margin-top: 6px; font-size: 12px; color: var(--text-muted); }
+.sa-updated { display: flex; align-items: center; gap: 5px; margin-top: 4px; font-size: 12px; color: var(--success); font-weight: 600; }
+.sa-updated svg { color: var(--success); }
+.sa-error { margin-top: 6px; font-size: 13px; color: #ef4444; }
+
+.sa-locate-card__actions { display: flex; gap: 8px; flex-shrink: 0; }
+.sa-locate-card .btn { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+
+/* Đèn "live" */
+.sa-live-dot {
+  display: inline-block;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6);
+  animation: sa-live 1.4s infinite;
+}
+.sa-live-dot--sm { width: 7px; height: 7px; margin-right: 4px; }
+@keyframes sa-live {
+  0%   { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5); }
+  70%  { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+.sa-spin { animation: sa-rotate 0.9s linear infinite; }
+@keyframes sa-rotate { to { transform: rotate(360deg); } }
+
+/* ───────────────── Thẻ thời tiết ───────────────── */
+.sa-weather {
+  max-width: 760px;
+  margin: 0 auto clamp(20px, 3vh, 28px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  background: linear-gradient(135deg, #eff6ff, #e0f2fe);
+  border: 1px solid #bfdbfe;
+  border-radius: var(--r-lg);
+  padding: 18px 22px;
+}
+.sa-weather__main { display: flex; align-items: center; gap: 14px; }
+.sa-weather__ic {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow-sm);
+}
+.sa-weather__temp { font-size: 28px; font-weight: 800; color: var(--text-h); line-height: 1; }
+.sa-weather__label { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+.sa-weather__grid { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+.sa-weather__grid > div {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 600; color: var(--text-body);
+}
+.sa-weather__grid svg { color: var(--primary); }
+
+/* ───────────────── Section ───────────────── */
+.sa-section {
+  max-width: 760px;
+  margin: 0 auto clamp(24px, 4vh, 36px);
+}
+.sa-section__head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.sa-section__title { font-size: 18px; font-weight: 700; color: var(--text-h); }
+.sa-hint { font-size: 13px; color: var(--text-muted); margin-bottom: 14px; }
+.sa-live-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 700; color: var(--success);
+  background: var(--success-soft);
+  padding: 3px 10px; border-radius: var(--r-full);
+}
+
+/* ───────────────── Cảnh báo ───────────────── */
+.sa-alerts { display: flex; flex-direction: column; gap: 12px; }
+.sa-alert {
+  display: flex; gap: 14px;
+  background: var(--white);
+  border-radius: var(--r-lg);
+  border: 1px solid var(--neutral-200);
+  border-left: 4px solid var(--neutral-300);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-card);
+}
+.sa-alert__icon {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  background: var(--neutral-100);
+  color: var(--text-muted);
+}
+.sa-alert--info { border-left-color: var(--primary); }
+.sa-alert--info .sa-alert__icon { background: var(--primary-soft); color: var(--primary); }
+.sa-alert--warning { border-left-color: #f59e0b; }
+.sa-alert--warning .sa-alert__icon { background: rgba(245, 158, 11, 0.12); color: #d97706; }
+.sa-alert--danger { border-left-color: #ef4444; }
+.sa-alert--danger .sa-alert__icon { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
+.sa-alert__body { flex: 1; min-width: 0; }
+.sa-alert__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
+.sa-alert__head h4 { font-size: 15px; font-weight: 700; color: var(--text-h); }
+.sa-alert__time { display: flex; align-items: center; font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+.sa-alert__body p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+/* ───────────────── Quanh bạn ───────────────── */
+.sa-nearby { display: flex; flex-direction: column; gap: 10px; }
+.sa-nearby__item {
+  display: flex; align-items: center; gap: 14px;
+  width: 100%;
+  text-align: left;
+  background: var(--white);
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--r-lg);
+  padding: 10px 14px 10px 10px;
+  cursor: pointer;
+  transition: all var(--t-fast);
+}
+.sa-nearby__item:hover { border-color: var(--primary); box-shadow: var(--shadow-md); }
+.sa-nearby__img { width: 56px; height: 56px; border-radius: var(--r-md); object-fit: cover; flex-shrink: 0; }
+.sa-nearby__info { flex: 1; min-width: 0; }
+.sa-nearby__name { font-size: 15px; font-weight: 700; color: var(--text-h); }
+.sa-nearby__meta { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.sa-nearby__meta svg { color: var(--primary); }
+.sa-nearby__arrow { color: var(--neutral-400); flex-shrink: 0; }
+
+/* ───────────────── Liên hệ khẩn cấp ───────────────── */
+.sa-contacts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.sa-contact {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--white);
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
+  text-decoration: none;
+  transition: all var(--t-fast);
+}
+.sa-contact:hover { border-color: #ef4444; box-shadow: var(--shadow-md); }
+.sa-contact:active { transform: scale(0.99); }
+.sa-contact__icon {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.sa-contact__body { flex: 1; min-width: 0; }
+.sa-contact__label { font-size: 13px; font-weight: 600; color: var(--text-h); }
+.sa-contact__number { font-size: 20px; font-weight: 800; color: #ef4444; line-height: 1.1; }
+.sa-contact__hint { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.sa-contact__call { color: var(--neutral-400); flex-shrink: 0; }
+
+.sa-footer-cta { display: flex; justify-content: center; }
+.sa-footer-cta .btn { display: inline-flex; align-items: center; gap: 8px; }
+
+@media (max-width: 640px) {
+  .sa-panic { flex-direction: column; text-align: center; }
+  .sa-locate-card { flex-direction: column; align-items: flex-start; }
+  .sa-locate-card__actions { width: 100%; }
+  .sa-locate-card__actions .btn { flex: 1; justify-content: center; }
+  .sa-contacts { grid-template-columns: 1fr; }
+  .sa-alert__head { flex-direction: column; align-items: flex-start; gap: 2px; }
+}

@@ -1,0 +1,50 @@
+[
+    {
+        "name": "Nguyễn Văn Phước",
+        "initials": "NVP",
+        "role": "Product Manager",
+        "badge": "PM"
+    },
+    {
+        "name": "Nguyễn Hữu Duy Minh",
+        "initials": "NHDM",
+        "role": "Frontend Developer",
+        "badge": "FE"
+    },
+    {
+        "name": "Nguyễn Văn Nguyên",
+        "initials": "NVN",
+        "role": "Backend Developer",
+        "badge": "BE"
+    },
+    {
+        "name": "Nguyễn Minh Hoàng",
+        "initials": "NMH",
+        "role": "Frontend Developer",
+        "badge": "FE"
+    },
+    {
+        "name": "Đỗ Đức Thịnh",
+        "initials": "DDT",
+        "role": "Backend Developer",
+        "badge": "BE"
+    },
+    {
+        "name": "Nguyễn Quốc Bảo",
+        "initials": "NQB",
+        "role": "Doc&Test",
+        "badge": "FE"
+    },
+    {
+        "name": "Phạm Xuân Duy",
+        "initials": "PXD",
+        "role": "UI/UX Designer",
+        "badge": "Designer"
+    },
+    {
+        "name": "Nguyễn Trung Chính",
+        "initials": "NTC",
+        "role": "DevOps",
+        "badge": "DevOps"
+    }
+]
