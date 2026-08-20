@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1e24" />
+      <stop offset="100%" stop-color="#0f0f12" />
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fc8181" />
+      <stop offset="100%" stop-color="#e53e3e" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bgGrad)" />
+  <path d="M 0,0 L 800,450 M 0,450 L 800,0" stroke="#ffffff" stroke-width="1" stroke-opacity="0.05" />
+  <circle cx="400" cy="225" r="180" stroke="#ffffff" stroke-width="1" stroke-opacity="0.05" fill="none" />
+  <circle cx="400" cy="180" r="60" fill="url(#accentGrad)" opacity="0.85" />
+  <path d="M 375,150 V 175 M 380,150 V 175 M 385,150 V 175 M 375,175 Q 375,185 380,185 V 205 M 380,185 Q 385,185 385,175 M 415,150 V 205 M 415,150 Q 425,150 425,170 Q 425,185 415,185" stroke="#ffffff" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.9" />
+  <text x="400" y="320" font-family="system-ui, sans-serif" font-size="28" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="2">ẨM THỰC</text>
+  <text x="400" y="355" font-family="system-ui, sans-serif" font-size="14" font-weight="500" fill="#a0aec0" text-anchor="middle" letter-spacing="1">IMAGE FALLBACK - SMART TRAVEL</text>
+</svg>

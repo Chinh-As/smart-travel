@@ -1,0 +1,175 @@
+.auth-layout {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  justify-content: flex-end;
+  background: #f8fafc;
+}
+
+.auth-layout__left {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.auth-layout__bg {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+
+.auth-layout__overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to right, rgba(248, 250, 252, 0) 0%, rgba(248, 250, 252, 0.6) 40%, rgba(248, 250, 252, 0.95) 70%, rgba(248, 250, 252, 1) 100%);
+}
+
+.auth-layout__logo {
+  position: absolute; 
+  top: 50%; 
+  left: 25%;
+  transform: translate(-50%, -50%);
+  display: flex; 
+  flex-direction: column;
+  align-items: center; 
+  gap: 24px;
+  color: var(--white); 
+  font-weight: 900; 
+  font-size: 64px;
+  z-index: 2;
+  text-shadow: 0 12px 32px rgba(0,0,0,0.5);
+  text-decoration: none;
+  letter-spacing: -2px;
+}
+.auth-layout__logo-icon { font-size: 140px; }
+
+/* ST logo — chữ trắng, không nền */
+.auth-layout__logo-st {
+  width: 280px;
+  height: 200px;
+  display: block;
+  overflow: visible;
+}
+
+
+.auth-layout__right {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-2xl) var(--sp-3xl);
+}
+
+@media (max-width: 960px) {
+  .auth-layout__right {
+    max-width: 60%;
+  }
+}
+
+@media (max-width: 768px) {
+  .auth-layout {
+    justify-content: flex-end;
+  }
+  .auth-layout__right { 
+    max-width: 100%; 
+    padding: var(--sp-xl) var(--sp-lg); 
+  }
+  .auth-layout__overlay {
+    background: linear-gradient(to bottom, rgba(248, 250, 252, 0) 0%, rgba(248, 250, 252, 0.8) 40%, rgba(248, 250, 252, 1) 100%);
+  }
+  .auth-layout__logo {
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 48px;
+  }
+  .auth-layout__logo-icon {
+    font-size: 80px;
+  }
+}
+
+/* ================================================
+   FORCE LIGHT MODE STYLING FOR AUTH PAGES (LOGIN / REGISTER)
+   ================================================ */
+.auth-layout,
+[data-theme="dark"] .auth-layout {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.auth-layout .login__title,
+.auth-layout .register__title,
+[data-theme="dark"] .auth-layout .login__title,
+[data-theme="dark"] .auth-layout .register__title {
+  color: #0f172a;
+}
+
+.auth-layout .login__sub,
+.auth-layout .register__sub,
+.auth-layout .login__switch,
+.auth-layout .register__switch,
+[data-theme="dark"] .auth-layout .login__sub,
+[data-theme="dark"] .auth-layout .register__sub,
+[data-theme="dark"] .auth-layout .login__switch,
+[data-theme="dark"] .auth-layout .register__switch {
+  color: #475569;
+}
+
+.auth-layout .login__input,
+.auth-layout .register__input,
+[data-theme="dark"] .auth-layout .login__input,
+[data-theme="dark"] .auth-layout .register__input {
+  color: #0f172a !important;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: none !important;
+}
+
+.auth-layout .login__input::placeholder,
+.auth-layout .register__input::placeholder,
+[data-theme="dark"] .auth-layout .login__input::placeholder,
+[data-theme="dark"] .auth-layout .register__input::placeholder {
+  color: #94a3b8 !important;
+}
+
+.auth-layout .login__input:focus,
+.auth-layout .register__input:focus,
+[data-theme="dark"] .auth-layout .login__input:focus,
+[data-theme="dark"] .auth-layout .register__input:focus {
+  background: #ffffff !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.15) !important;
+}
+
+.auth-layout .login__remember,
+.auth-layout .register__agree,
+[data-theme="dark"] .auth-layout .login__remember,
+[data-theme="dark"] .auth-layout .register__agree {
+  color: #334155;
+}
+
+.auth-layout .login__submit,
+.auth-layout .register__submit,
+[data-theme="dark"] .auth-layout .login__submit,
+[data-theme="dark"] .auth-layout .register__submit {
+  background: #38bdf8;
+  color: #ffffff;
+}
+
+.auth-layout .login__submit:hover:not(:disabled),
+.auth-layout .register__submit:hover:not(:disabled),
+[data-theme="dark"] .auth-layout .login__submit:hover:not(:disabled),
+[data-theme="dark"] .auth-layout .register__submit:hover:not(:disabled) {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+.auth-layout .login__demo,
+[data-theme="dark"] .auth-layout .login__demo {
+  color: #64748b;
+}
+.auth-layout .login__demo:hover,
+[data-theme="dark"] .auth-layout .login__demo:hover {
+  color: #0f172a;
+}

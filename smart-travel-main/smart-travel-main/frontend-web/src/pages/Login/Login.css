@@ -1,0 +1,157 @@
+.login { 
+  width: 100%; 
+  max-width: 440px; 
+  display: flex; 
+  flex-direction: column; 
+  gap: 28px; 
+  animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); 
+  margin-bottom: 1vh; /* Pushes the centered card upwards */
+}
+
+.login__header { display: flex; flex-direction: column; gap: 8px; text-align: left; }
+.login__title { font-size: 28px; font-weight: 800; color: var(--text-h); letter-spacing: -0.5px; }
+.login__sub { font-size: 14px; color: var(--text-muted); }
+
+.login__form { display: flex; flex-direction: column; gap: 20px; }
+
+/* Premium Minimal Inputs */
+.login__input-group { position: relative; }
+.login__input {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 15px;
+  color: var(--text-h);
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  font-family: var(--font-body);
+}
+.login__input::placeholder { color: #94a3b8; }
+.login__input:focus { outline: none; background: var(--white); border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-a04); }
+.login__input--err { border-color: var(--red); background: #fff5f5; }
+.field-err { font-size: 12px; color: var(--red); position: absolute; bottom: -20px; left: 4px; }
+
+.login__row { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
+.login__remember { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-body); font-weight: 500; }
+.login__remember input[type="checkbox"] { accent-color: var(--primary); width: 16px; height: 16px; cursor: pointer; }
+.login__forgot { font-size: 13px; font-weight: 600; color: var(--primary); transition: color var(--t-fast); }
+.login__forgot:hover { color: var(--primary-dark, #0284c7); text-decoration: underline; }
+
+.login__submit { 
+  width: 100%; 
+  padding: 14px; 
+  font-size: 15px; 
+  font-weight: 700; 
+  margin-top: 12px;
+  border-radius: 12px;
+  background: var(--primary);
+  color: var(--white);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px var(--primary-a30);
+}
+.login__submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 16px var(--primary-a30); }
+.login__submit:disabled { opacity: 0.7; cursor: not-allowed; box-shadow: none; transform: none; }
+
+.login__switch { text-align: center; font-size: 14px; color: var(--text-muted); margin-top: 16px; }
+.login__link { font-weight: 700; color: var(--primary); }
+.login__link:hover { text-decoration: underline; }
+
+.login__demo { align-self: center; font-size: 13px; color: var(--text-muted); background: none; border: none; cursor: pointer; transition: color var(--t-fast); margin-top: -8px; }
+.login__demo:hover { color: var(--text-h); }
+
+/* Quick Demo Accounts Selection Box */
+.login__demo-container {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.login__demo-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+.login__demo-divider::before,
+.login__demo-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px dashed #cbd5e1;
+}
+.login__demo-divider span {
+  padding: 0 10px;
+}
+
+.login__demo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.login__demo-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.25s ease;
+}
+
+.login__demo-btn:hover {
+  background: #ffffff;
+  border-color: #0284c7;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(2, 132, 199, 0.12);
+}
+
+.login__demo-role {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 4px 7px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.login__demo-role--user {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.login__demo-role--admin {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.login__demo-details {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.login__demo-email {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.login__demo-pass {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 500;
+}

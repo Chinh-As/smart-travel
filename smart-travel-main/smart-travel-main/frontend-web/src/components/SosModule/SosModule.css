@@ -1,0 +1,299 @@
+/* ===== SOS Floating Button ===== */
+.sos-floating-container {
+  position: absolute;
+  bottom: 32px;
+  right: 32px;
+  z-index: 1000;
+}
+
+.sos-floating-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #E53935;
+  color: white;
+  font-weight: 800;
+  font-size: 20px;
+  border: none;
+  box-shadow: 0 4px 16px rgba(229, 57, 53, 0.4);
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sos-floating-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(229, 57, 53, 0.5);
+}
+
+.sos-floating-btn::after {
+  content: "Yêu cầu cứu hộ khẩn cấp";
+  position: absolute;
+  bottom: 110%;
+  right: 0; /* Align right edge with the button's right edge */
+  transform: translateY(10px); /* Remove translateX to stop pushing it off-screen */
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.sos-floating-btn:hover::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===== Modal Backdrop ===== */
+.sos-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+/* ===== Modal Content ===== */
+.sos-modal {
+  background: white;
+  width: 400px;
+  max-width: 90vw;
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  padding: 32px;
+  text-align: center;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.sos-icon-large {
+  font-size: 48px;
+  margin-bottom: 16px;
+  line-height: 1;
+}
+
+.sos-icon-large.warning {
+  color: #fbbf24;
+}
+
+.sos-icon-large.danger {
+  color: #E53935;
+  font-weight: 900;
+  font-size: 36px;
+  background: #fee2e2;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin: 0 auto;
+}
+
+.sos-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 12px;
+}
+
+.sos-desc {
+  font-size: 14px;
+  color: #4b5563;
+  margin-bottom: 32px;
+  line-height: 1.5;
+}
+
+/* ===== Hold Button ===== */
+.sos-hold-btn {
+  width: 100%;
+  height: 56px;
+  background: #fee2e2;
+  border: 2px solid #E53935;
+  border-radius: 12px;
+  color: #E53935;
+  font-weight: 700;
+  font-size: 15px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.1s;
+}
+
+.sos-hold-btn:active {
+  transform: scale(0.98);
+}
+
+.sos-progress-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: #E53935;
+  transition: width 0.05s linear;
+  z-index: 1;
+}
+
+.sos-hold-text {
+  position: relative;
+  z-index: 2;
+  /* Text changes color based on progress for contrast, simple trick: mix-blend-mode */
+  mix-blend-mode: color-burn; 
+}
+
+.sos-cancel-btn {
+  margin-top: 16px;
+  background: transparent;
+  border: none;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 16px;
+}
+
+.sos-cancel-btn:hover {
+  text-decoration: underline;
+  color: #4b5563;
+}
+
+/* ===== Broadcasting State ===== */
+.sos-radar-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sos-radar-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid #E53935;
+  border-radius: 50%;
+  opacity: 0;
+  animation: pulse-radar 2s cubic-bezier(0.215, 0.610, 0.355, 1) infinite;
+}
+
+.ring-1 { width: 100%; height: 100%; animation-delay: 0s; }
+.ring-2 { width: 100%; height: 100%; animation-delay: 0.6s; }
+.ring-3 { width: 100%; height: 100%; animation-delay: 1.2s; }
+
+@keyframes pulse-radar {
+  0% { transform: translate(-50%, -50%) scale(0.6); opacity: 1; border-width: 4px; }
+  100% { transform: translate(-50%, -50%) scale(2); opacity: 0; border-width: 1px; }
+}
+
+.blink {
+  animation: text-blink 1s ease-in-out infinite alternate;
+  color: #E53935;
+}
+
+@keyframes text-blink {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.sos-gps-box {
+  background: #f3f4f6;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.sos-gps-label {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+}
+
+.sos-gps-coords {
+  font-size: 20px;
+  font-weight: 900;
+  font-family: monospace;
+  color: #111827;
+  letter-spacing: 1px;
+}
+
+.sos-quick-calls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.sos-call-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+  color: white;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.sos-call-btn.police {
+  background: #1e3a8a; /* Cảnh sát xanh đậm */
+}
+.sos-call-btn.ambulance {
+  background: #059669; /* Cấp cứu xanh lá */
+}
+
+.sos-call-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  color: white;
+}
+
+.sos-safe-btn {
+  width: 100%;
+  padding: 14px;
+  background: #f3f4f6;
+  color: #374151;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.sos-safe-btn:hover {
+  background: #e5e7eb;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}

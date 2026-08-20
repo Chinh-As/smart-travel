@@ -1,0 +1,137 @@
+.tips-help-widget {
+  background-color: var(--color-surface-container-low, rgba(0, 107, 95, 0.03));
+  border-radius: 12px;
+  padding: 14px;
+  margin: 16px;
+  border: 1px solid rgba(187, 202, 198, 0.25);
+  transition: all 0.25s;
+}
+
+.admin-sidebar.collapsed .tips-help-widget {
+  display: none;
+}
+
+.tips-help-widget h3 {
+  margin: 0 0 10px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-on-surface);
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.help-links-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.help-link-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-on-surface-variant);
+  transition: all 0.2s ease-in-out;
+  text-align: left;
+  border-radius: 6px;
+  width: 100%;
+}
+
+.help-link-btn:hover {
+  background-color: rgba(0, 107, 95, 0.08);
+  color: var(--color-primary);
+  transform: translateX(4px);
+}
+
+.help-icon {
+  font-size: 18px;
+  min-width: 18px;
+}
+
+.help-label {
+  flex: 1;
+}
+
+/* Modal inside widget to show details */
+.help-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.help-dialog {
+  background-color: var(--color-surface-container-lowest, white);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 400px;
+  border: 1px solid rgba(187, 202, 198, 0.2);
+  animation: dialogFadeIn 0.2s ease-out;
+}
+
+@keyframes dialogFadeIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.help-dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(187, 202, 198, 0.2);
+}
+
+.help-dialog-header h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.help-dialog-close {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--color-on-surface-variant);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.help-dialog-close:hover {
+  background-color: var(--color-surface-container);
+  color: var(--color-on-surface);
+}
+
+.help-dialog-content {
+  padding: 16px;
+  color: var(--color-on-surface-variant);
+}

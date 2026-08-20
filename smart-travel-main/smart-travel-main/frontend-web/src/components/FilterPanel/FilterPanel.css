@@ -1,0 +1,215 @@
+/* ===== FILTER PANEL — horizontal tabs ===== */
+.fp-horizontal {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.fp-dropdown {
+  position: relative;
+}
+
+.fp-dropdown__toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--r-full);
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-body);
+  cursor: pointer;
+  transition: all var(--t-fast);
+  white-space: nowrap;
+}
+
+.fp-dropdown__toggle strong {
+  color: var(--text-h);
+  font-weight: 600;
+}
+
+.fp-dropdown__toggle:hover {
+  border-color: var(--primary-a50);
+  background: var(--bg-soft);
+}
+
+.fp-dropdown__toggle.active {
+  border-color: var(--primary);
+  background: var(--primary-a04);
+  color: var(--primary-dark);
+}
+
+.fp-dropdown__toggle.active strong {
+  color: var(--primary-dark);
+}
+
+.fp-dropdown__menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 200px;
+  background: var(--white);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-light);
+  padding: 8px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  animation: fadeInDown 0.2s ease;
+  max-height: 196px; /* ~4 items × (10px padding×2 + 13px text + gap) */
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.fp-dropdown__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: transparent;
+  border: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-body);
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--t-fast);
+}
+
+.fp-dropdown__item:hover {
+  background: var(--bg-soft);
+  color: var(--primary);
+}
+
+.fp-dropdown__item.active {
+  background: var(--primary-a08);
+  color: var(--primary-dark);
+  font-weight: 600;
+}
+
+.fp-horizontal__reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  cursor: pointer;
+  padding: 8px 14px;
+  border-radius: var(--r-full);
+  transition: all 0.2s ease;
+}
+
+.fp-horizontal__reset:hover {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+}
+
+/* ── Nút Lọc ── */
+.fp-apply-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: var(--r-full);
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px var(--primary-a30);
+  animation: fp-pop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.fp-apply-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px var(--primary-a30);
+}
+
+@keyframes fp-pop {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Grayscale emoji icons ── */
+.fp-dropdown__toggle span:first-child,
+.fp-dropdown__item { filter: grayscale(1); }
+.fp-dropdown__item:hover,
+.fp-dropdown__item.active { filter: grayscale(0); }
+
+/* ── Unified Traveloka Mode ── */
+.fp-horizontal--unified {
+  gap: 0;
+  flex-wrap: nowrap;
+}
+
+.fp-horizontal--unified .fp-dropdown__toggle {
+  border: none;
+  background: transparent;
+  padding: 8px 12px;
+  border-radius: var(--r-full);
+  font-size: 13px;
+  color: #475569;
+}
+
+.fp-horizontal--unified .fp-dropdown__toggle:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.fp-horizontal--unified .fp-dropdown__toggle.active {
+  background: #f1f5f9;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.fp-divider {
+  width: 1px;
+  height: 22px;
+  background: #cbd5e1;
+  margin: 0 2px;
+  flex-shrink: 0;
+}
+
+/* Dark Mode Overrides for FilterPanel */
+[data-theme="dark"] .fp-horizontal--unified .fp-dropdown__toggle {
+  color: var(--text-body);
+}
+
+[data-theme="dark"] .fp-horizontal--unified .fp-dropdown__toggle:hover,
+[data-theme="dark"] .fp-horizontal--unified .fp-dropdown__toggle.active {
+  background: var(--neutral-200);
+  color: var(--text-h);
+}
+
+[data-theme="dark"] .fp-divider {
+  background: var(--border);
+}
+
+[data-theme="dark"] .fp-horizontal__reset {
+  background: var(--neutral-200);
+  color: var(--text-h);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .fp-horizontal__reset:hover {
+  background: #f8fafb;
+  color: #0f172a;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}

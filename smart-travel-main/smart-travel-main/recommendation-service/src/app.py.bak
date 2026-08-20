@@ -1,0 +1,602 @@
+from __future__ import annotations
+
+from functools import lru_cache
+import math
+import os
+from typing import Any, Mapping
+
+import pandas as pd
+from fastapi import Body, FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
+
+from src.config import DEFAULT_TOP_K, PLACES_V2_PATH
+from src.core.recommender import recommend_places
+from src.services.data_adapter_v1 import normalize_recommendation_payload
+
+
+APP_VERSION = "0.1.0"
+app = FastAPI(title="Smart Travel Recommendation Service", version=APP_VERSION)
+
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:8000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+SIGHTSEEING_CATEGORIES = {"museum", "park", "walking", "wildlife", "sightseeing"}
+
+
+def _success(data: Any, *, message: str | None = None) -> Mapping[str, Any]:
+    return {"status": "success", "message": message or "", "data": data}
+
+
+def _error(message: str, *, data: Any | None = None) -> Mapping[str, Any]:
+    return {"status": "error", "message": message, "data": data}
+
+
+def _match_reason(row: Mapping[str, Any]) -> str:
+    rating = row.get("rating")
+    distance_km = row.get("distance_km")
+    price_level = row.get("price_level")
+
+    rating_part = ""
+    if rating is not None:
+        try:
+            rating_part = f"rating {float(rating):.1f}⭐"
+        except Exception:
+            rating_part = f"rating {rating}⭐"
+
+    distance_part = ""
+    if distance_km is not None:
+        try:
+            distance_part = f"Gần bạn {float(distance_km):.1f}km"
+        except Exception:
+            distance_part = f"Gần bạn {distance_km}km"
+
+    budget_part = ""
+    if price_level:
+        budget_part = "phù hợp ngân sách"
+
+    parts = [p for p in [distance_part, rating_part, budget_part] if p]
+    return ", ".join(parts) if parts else "Phù hợp với tiêu chí của bạn"
+
+
+def _haversine_km(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
+    r = 6371.0
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    d_phi = math.radians(lat2 - lat1)
+    d_lambda = math.radians(lng2 - lng1)
+
+    a = math.sin(d_phi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(d_lambda / 2) ** 2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return r * c
+
+
+def _coerce_places_v2(df: pd.DataFrame) -> pd.DataFrame:
+    working = df.copy()
+    for col in ("lat", "lng", "rating"):
+        if col in working.columns:
+            working[col] = pd.to_numeric(working[col], errors="coerce")
+
+    if "review_count" in working.columns:
+        working["review_count"] = pd.to_numeric(working["review_count"], errors="coerce").fillna(0).astype(int)
+
+    if "category" in working.columns:
+        working["category"] = working["category"].astype(str).str.lower().str.strip()
+    if "price_level" in working.columns:
+        working["price_level"] = working["price_level"].astype(str).str.lower().str.strip()
+
+    return working
+
+
+def _category_aliases(category: str) -> set[str]:
+    category = category.strip().lower()
+    if category == "sightseeing":
+        return {"museum", "park", "walking", "wildlife"}
+    return {category}
+
+
+def _recommend_from_places(
+    *,
+    places: pd.DataFrame,
+    category: str,
+    budget: str,
+    radius_km: float,
+    top_k: int,
+) -> pd.DataFrame:
+    cats = _category_aliases(category)
+    if not cats:
+        return places.head(0)
+
+    # Use existing v0 recommender per-category then merge.
+    frames: list[pd.DataFrame] = []
+    for c in sorted(cats):
+        frames.append(
+            recommend_places(
+                data=places,
+                category=c,
+                max_budget=budget,
+                max_distance_km=radius_km,
+                top_k=top_k,
+            )
+        )
+
+    if not frames:
+        return places.head(0)
+
+    merged = pd.concat(frames, ignore_index=True) if len(frames) > 1 else frames[0]
+    if merged.empty:
+        return merged
+
+    # De-duplicate by place_id/name if present.
+    if "place_id" in merged.columns:
+        merged = merged.drop_duplicates(subset=["place_id"], keep="first")
+    elif "name" in merged.columns:
+        merged = merged.drop_duplicates(subset=["name"], keep="first")
+
+    if "score" in merged.columns and "rating" in merged.columns and "distance_km" in merged.columns:
+        merged = merged.sort_values(by=["score", "rating", "distance_km"], ascending=[False, False, True])
+
+    return merged.head(top_k)
+
+
+@lru_cache(maxsize=1)
+def _places_v2() -> pd.DataFrame:
+    return pd.read_csv(PLACES_V2_PATH)
+
+
+class CoordinatesLocation(BaseModel):
+    type: str = Field("COORDINATES")
+    lat: float
+    lng: float
+
+
+class RecommendConstraints(BaseModel):
+    budget: str = Field(..., min_length=1, description="low|medium|high")
+    radius_km: float = Field(..., gt=0)
+    category: str = Field(..., min_length=1)
+
+
+class RecommendRequest(BaseModel):
+    location: CoordinatesLocation
+    constraints: RecommendConstraints
+    top_k: int = Field(DEFAULT_TOP_K, ge=1, le=50)
+
+
+def _row_to_place(row: Mapping[str, Any]) -> Mapping[str, Any]:
+    return {
+        "place_id": row.get("place_id"),
+        "name": row.get("name"),
+        "category": row.get("category"),
+        "price_level": row.get("price_level"),
+        "rating": row.get("rating"),
+        "distance_km": row.get("distance_km"),
+        "score": row.get("score"),
+        "match_reason": _match_reason(row),
+        "image_url": row.get("image_url") or row.get("images_url"),
+        "address": row.get("address"),
+        "description": row.get("description"),
+        "opening_hours": row.get("opening_hours"),
+        "review_count": row.get("review_count"),
+        "lat": row.get("lat"),
+        "lng": row.get("lng"),
+        "wheelchair_access": row.get("wheelchair_access"),
+    }
+
+
+# ---------------------------------------------------------------------------
+# Destination browsing endpoints (for frontend integration)
+# ---------------------------------------------------------------------------
+
+
+@app.get("/destinations")
+def list_destinations(
+    category: str | None = Query(None),
+    price_level: str | None = Query(None),
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+) -> Mapping[str, Any]:
+    """
+    List destinations with optional filtering.
+    """
+    try:
+        places = _coerce_places_v2(_places_v2())
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Cannot load places: {exc}")
+
+    filtered = places.copy()
+
+    if category:
+        cat = category.strip().lower()
+        filtered = filtered[filtered["category"].str.lower() == cat]
+
+    if price_level:
+        pl = price_level.strip().lower()
+        filtered = filtered[filtered["price_level"].str.lower() == pl]
+
+    total = len(filtered)
+    page = filtered.iloc[offset:offset + limit]
+
+    destinations_out = [_row_to_place(r) for r in page.to_dict(orient="records")]
+    return {
+        "destinations": destinations_out,
+        "total_count": total,
+        "limit": limit,
+        "offset": offset,
+    }
+
+
+@app.get("/destinations/search")
+def search_destinations(
+    q: str = Query("", description="Search query"),
+    category: str | None = Query(None),
+    limit: int = Query(20, ge=1, le=100),
+) -> Mapping[str, Any]:
+    """
+    Search destinations by name, address, or description.
+    """
+    try:
+        places = _coerce_places_v2(_places_v2())
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Cannot load places: {exc}")
+
+    filtered = places.copy()
+
+    if category:
+        cat = category.strip().lower()
+        filtered = filtered[filtered["category"].str.lower() == cat]
+
+    if q.strip():
+        query_lower = q.strip().lower()
+        mask = (
+            filtered["name"].str.lower().str.contains(query_lower, na=False)
+            | filtered.get("address", pd.Series(dtype=str)).str.lower().str.contains(query_lower, na=False)
+            | filtered.get("description", pd.Series(dtype=str)).str.lower().str.contains(query_lower, na=False)
+        )
+        filtered = filtered[mask]
+
+    # Sort by rating descending, then review_count descending
+    sort_cols = []
+    if "rating" in filtered.columns:
+        sort_cols.append("rating")
+    if "review_count" in filtered.columns:
+        filtered["review_count"] = pd.to_numeric(filtered["review_count"], errors="coerce").fillna(0)
+        sort_cols.append("review_count")
+    if sort_cols:
+        filtered = filtered.sort_values(by=sort_cols, ascending=False)
+
+    results = filtered.head(limit)
+    results_out = [_row_to_place(r) for r in results.to_dict(orient="records")]
+    return {
+        "results": results_out,
+        "total_count": len(filtered),
+    }
+
+
+@app.get("/destinations/featured")
+def featured_destinations(
+    limit: int = Query(8, ge=1, le=50),
+) -> Mapping[str, Any]:
+    """
+    Get featured/popular destinations (highest rated with most reviews).
+    Returns a diverse mix of categories.
+    """
+    try:
+        places = _coerce_places_v2(_places_v2())
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Cannot load places: {exc}")
+
+    working = places.copy()
+    working["review_count"] = pd.to_numeric(working["review_count"], errors="coerce").fillna(0)
+    working["rating"] = pd.to_numeric(working["rating"], errors="coerce").fillna(0)
+
+    # Score: weighted combination of rating and popularity (review count)
+    max_reviews = working["review_count"].max() or 1
+    working["_featured_score"] = (
+        working["rating"] * 0.6
+        + (working["review_count"] / max_reviews) * 5.0 * 0.4
+    )
+
+    # Get top items per category for diversity, then merge
+    categories = working["category"].dropna().unique().tolist()
+    per_cat = max(2, limit // max(len(categories), 1))
+
+    featured_frames: list[pd.DataFrame] = []
+    for cat in categories:
+        cat_df = working[working["category"] == cat].nlargest(per_cat, "_featured_score")
+        featured_frames.append(cat_df)
+
+    if featured_frames:
+        merged = pd.concat(featured_frames, ignore_index=True)
+        merged = merged.drop_duplicates(subset=["place_id"], keep="first")
+        merged = merged.nlargest(limit, "_featured_score")
+    else:
+        merged = working.nlargest(limit, "_featured_score")
+
+    if "_featured_score" in merged.columns:
+        merged = merged.drop(columns=["_featured_score"])
+
+    destinations_out = [_row_to_place(r) for r in merged.to_dict(orient="records")]
+    return {
+        "destinations": destinations_out,
+        "total_count": len(destinations_out),
+    }
+
+
+@app.get("/destinations/{place_id}")
+def get_destination(
+    place_id: str,
+) -> Mapping[str, Any]:
+    """
+    Get a single destination by place_id.
+    """
+    try:
+        places = _coerce_places_v2(_places_v2())
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Cannot load places: {exc}")
+
+    match = places[places["place_id"] == place_id]
+    if match.empty:
+        raise HTTPException(status_code=404, detail=f"Destination {place_id} not found")
+
+    row = match.iloc[0].to_dict()
+    return {"destination": _row_to_place(row)}
+
+
+@app.get("/")
+def root() -> Mapping[str, Any]:
+    return _success(
+        {
+            "service": "smart-travel-recommendation",
+            "docs": "/docs",
+            "health": "/health",
+        }
+    )
+
+
+@app.get("/health")
+def health() -> Mapping[str, Any]:
+    # MVP contract
+    return {"status": "ok", "version": APP_VERSION}
+
+
+@app.post("/recommend")
+def recommend(
+    req: RecommendRequest,
+) -> Mapping[str, Any]:
+    try:
+        places = _coerce_places_v2(_places_v2())
+    except Exception as exc:  # pragma: no cover
+        raise HTTPException(status_code=500, detail=f"Cannot load places: {exc}")
+
+    if "lat" not in places.columns or "lng" not in places.columns:
+        raise HTTPException(status_code=500, detail="Dataset must include lat/lng")
+
+    user_lat = float(req.location.lat)
+    user_lng = float(req.location.lng)
+
+    working = places.copy()
+    working["distance_km"] = working.apply(
+        lambda row: _haversine_km(user_lat, user_lng, float(row["lat"]), float(row["lng"])), axis=1
+    )
+
+    category = req.constraints.category.strip().lower()
+    result = _recommend_from_places(
+        places=working,
+        category=category,
+        budget=req.constraints.budget,
+        radius_km=float(req.constraints.radius_km),
+        top_k=int(req.top_k),
+    )
+
+    places_out = [_row_to_place(r) for r in result.to_dict(orient="records")]
+    return {"places": places_out, "total_count": len(places_out)}
+
+
+@app.post("/api/v1/recommendation")
+def recommend_contract(
+    payload: Mapping[str, Any] = Body(...),
+    top_k: int = Query(DEFAULT_TOP_K, ge=1, le=50),
+) -> Mapping[str, Any]:
+    """Compatibility endpoint for older contract payload.
+
+    This keeps existing adapter behavior for clients that send:
+    - constraints.budget.{amount,currency}
+    - constraints.main_category / sub_category
+    - needs_wheelchair, CITY by city_name, ...
+
+    It returns the MVP response shape (places/total_count).
+    """
+
+    try:
+        normalized = normalize_recommendation_payload(payload)
+        places = _coerce_places_v2(_places_v2())
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:  # pragma: no cover
+        raise HTTPException(status_code=500, detail=f"Internal error: {exc}")
+
+    # For compatibility we reuse the existing v0 recommender by translating the normalized request.
+    # Coordinates are required to compute distance_km.
+    if normalized.location.type != "COORDINATES" or normalized.location.lat is None or normalized.location.lng is None:
+        raise HTTPException(status_code=400, detail="Only COORDINATES is supported for this endpoint")
+
+    user_lat = float(normalized.location.lat)
+    user_lng = float(normalized.location.lng)
+    working = places.copy()
+    working["distance_km"] = working.apply(
+        lambda row: _haversine_km(user_lat, user_lng, float(row["lat"]), float(row["lng"])), axis=1
+    )
+
+    # category from adapter (sub_category or main_category)
+    category = (normalized.constraints.sub_category or normalized.constraints.main_category or "").strip().lower()
+    if not category:
+        raise HTTPException(status_code=400, detail="constraints.category is required")
+
+    # map numeric budget to buckets using the existing helper via normalize payload output
+    # (the adapter already decided bucket via its own function when you call adapt_payload_to_internal_inputs;
+    # here we approximate using currency-agnostic thresholds)
+    # NOTE: if budget_amount is None we treat as 'high'
+    amount = normalized.constraints.budget_amount
+    if amount is None:
+        budget_bucket = "high"
+    else:
+        low_max = float(os.getenv("APP_BUDGET_LOW_MAX", "200000"))
+        medium_max = float(os.getenv("APP_BUDGET_MEDIUM_MAX", "1000000"))
+        budget_bucket = "low" if amount <= low_max else ("medium" if amount <= medium_max else "high")
+
+    result = recommend_places(
+        data=working,
+        category=category,
+        max_budget=budget_bucket,
+        max_distance_km=float(normalized.constraints.radius_km),
+        top_k=int(top_k),
+    )
+
+    places_out = [_row_to_place(r) for r in result.to_dict(orient="records")]
+    return {"places": places_out, "total_count": len(places_out)}
+
+
+@app.post("/itinerary")
+def itinerary(
+    payload: Mapping[str, Any] = Body(...),
+) -> Mapping[str, Any]:
+    """MVP itinerary contract.
+
+    Request:
+      - location: COORDINATES
+      - preferences: ["cafe", "sightseeing", ...]
+      - budget: low|medium|high
+      - radius_km
+    """
+
+    location = payload.get("location") or {}
+    if not isinstance(location, Mapping) or location.get("type") != "COORDINATES":
+        raise HTTPException(status_code=400, detail="location.type must be COORDINATES")
+    try:
+        user_lat = float(location.get("lat"))
+        user_lng = float(location.get("lng"))
+    except Exception:
+        raise HTTPException(status_code=400, detail="location.lat and location.lng are required")
+
+    preferences = payload.get("preferences") or []
+    if not isinstance(preferences, list) or not preferences:
+        raise HTTPException(status_code=400, detail="preferences must be a non-empty list")
+    preferences = [str(p).strip().lower() for p in preferences if str(p).strip()]
+    if not preferences:
+        raise HTTPException(status_code=400, detail="preferences must be a non-empty list")
+
+    budget = str(payload.get("budget") or "").strip().lower()
+    if budget not in {"low", "medium", "high"}:
+        raise HTTPException(status_code=400, detail="budget must be low|medium|high")
+
+    try:
+        radius_km = float(payload.get("radius_km"))
+    except Exception:
+        raise HTTPException(status_code=400, detail="radius_km is required")
+    if radius_km <= 0:
+        raise HTTPException(status_code=400, detail="radius_km must be > 0")
+
+    places = _coerce_places_v2(_places_v2())
+    working = places.copy()
+    working["distance_km"] = working.apply(
+        lambda row: _haversine_km(user_lat, user_lng, float(row["lat"]), float(row["lng"])), axis=1
+    )
+
+    slots = [
+        {"time_slot": "morning", "label": "🌅 Sáng (8:00-11:00)", "fallback_reason": "Cafe yên tĩnh để bắt đầu ngày", "prefer": "cafe"},
+        {"time_slot": "lunch", "label": "🍜 Trưa (11:30-13:30)", "fallback_reason": "Món ngon gần đó, phù hợp ngân sách", "prefer": "food"},
+        {"time_slot": "afternoon", "label": "🌤 Chiều (14:00-17:00)", "fallback_reason": "Điểm tham quan thoáng mát, dễ di chuyển", "prefer": "sightseeing"},
+        {"time_slot": "evening", "label": "🌙 Tối (18:00-21:00)", "fallback_reason": "Trải nghiệm buổi tối phù hợp sở thích", "prefer": None},
+    ]
+
+    used: set[str] = set()
+    itinerary_out: list[Mapping[str, Any]] = []
+
+    for idx, slot in enumerate(slots):
+        desired = slot.get("prefer")
+        if desired and desired in preferences:
+            pref = desired
+        elif slot["time_slot"] == "evening":
+            pref = preferences[-1]
+        else:
+            pref = preferences[idx % len(preferences)]
+
+        ranked = _recommend_from_places(
+            places=working,
+            category=pref,
+            budget=budget,
+            radius_km=radius_km,
+            top_k=20,
+        )
+
+        chosen: Mapping[str, Any] | None = None
+        for r in ranked.to_dict(orient="records"):
+            key = str(r.get("place_id") or r.get("name") or "")
+            if not key or key in used:
+                continue
+            used.add(key)
+            chosen = r
+            break
+
+        itinerary_out.append(
+            {
+                "time_slot": slot["time_slot"],
+                "label": slot["label"],
+                "place": _row_to_place(chosen) if chosen is not None else None,
+                "reason": slot["fallback_reason"],
+            }
+        )
+
+    return {"itinerary": itinerary_out}
+
+
+@app.get("/categories")
+def categories() -> Mapping[str, Any]:
+    places = _coerce_places_v2(_places_v2())
+    if "category" not in places.columns:
+        return {"categories": []}
+    raw = (
+        places["category"].dropna().astype(str).str.lower().str.strip().replace("", pd.NA).dropna().unique().tolist()
+    )
+
+    # Contract wants user-facing categories with a stable ordering.
+    # Example: {"categories": ["cafe", "food", "hotel", "sightseeing", "park", "museum"]}
+    base_order = ["cafe", "food", "hotel", "sightseeing", "park", "museum"]
+
+    # Hide internal subcategories from the picker, but still allow them for /recommend.
+    hidden_subcategories = {"walking", "wildlife"}
+
+    observed: set[str] = set()
+    has_sightseeing = False
+    for c in raw:
+        if c in SIGHTSEEING_CATEGORIES:
+            has_sightseeing = True
+        if c in hidden_subcategories:
+            continue
+        observed.add(c)
+
+    if has_sightseeing:
+        observed.add("sightseeing")
+
+    # Always include the baseline categories so the frontend can render a consistent UI,
+    # even if the current dataset doesn't contain all of them yet (e.g., "hotel").
+    baseline: set[str] = set(base_order)
+    combined = observed | baseline
+
+    ordered = [c for c in base_order if c in combined]
+    extras = sorted([c for c in combined if c not in base_order])
+    return {"categories": ordered + extras}
