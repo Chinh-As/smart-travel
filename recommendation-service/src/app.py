@@ -83,6 +83,10 @@ origins = [
     "http://localhost:8000",
 ]
 
+cors_env = os.getenv("CORS_ALLOWED_ORIGINS")
+if cors_env:
+    origins.extend([o.strip() for o in cors_env.split(",") if o.strip()])
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
