@@ -1,5 +1,7 @@
 # 📘 README – ĐỒ ÁN TƯ DUY TÍNH TOÁN (HỌC KỲ II - 2025)
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Chinh-As/smart-travel)
+
 ## 🎬 Video Demo Sản Phẩm MVP
 
 > **📺 Link YouTube (Unlisted):** [https://youtu.be/rn6cj8IdtCo](https://youtu.be/rn6cj8IdtCo)
