@@ -7,7 +7,7 @@ services:
     envVars:
       - fromGroup: smart-travel-secrets
       - key: GEMINI_MODEL
-        value: gemini-3.1-flash-lite
+        value: gemini-2.0-flash
       - key: CORS_ALLOWED_ORIGINS
         value: https://smart-travel-six.vercel.app,http://localhost:3000,http://localhost:5173
 
@@ -31,7 +31,7 @@ services:
       - key: COOKIE_SECURE
         value: "true"
       - key: GEMINI_MODEL
-        value: gemini-3.1-flash-lite
+        value: gemini-2.0-flash
       - key: MAIL_USERNAME
         value: htv.nt9h@gmail.com
       - key: CORS_ALLOWED_ORIGINS
