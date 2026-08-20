@@ -55,38 +55,43 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
-                                           CorsConfigurationSource corsConfigurationSource) throws Exception {
+            CorsConfigurationSource corsConfigurationSource) throws Exception {
         http
-            // CSRF disabled: an toàn vì refresh-token cookie dùng SameSite=Strict (xem AuthController#setRefreshTokenCookie).
-            // Nếu đổi SameSite sang Lax/None, PHẢI bật lại CSRF protection cho /auth/refresh và /auth/logout.
-            .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.configurationSource(corsConfigurationSource))
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .exceptionHandling(ex -> ex
-                .authenticationEntryPoint((request, response, authException) ->
-                    writeErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED,
-                        "Unauthorized", "Authentication required", request.getRequestURI()))
-                .accessDeniedHandler((request, response, accessDeniedException) ->
-                    writeErrorResponse(response, HttpServletResponse.SC_FORBIDDEN,
-                        "Forbidden", "You do not have permission to access this resource", request.getRequestURI())))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**").permitAll()
-                .requestMatchers("/actuator/health").permitAll()
-                .requestMatchers("/error").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/places/**", "/api/v1/categories/**", "/api/v1/reviews/places/**").permitAll()
-                // More-specific POST rule must come before the wildcard ADMIN rule below
-                .requestMatchers(HttpMethod.POST, "/api/v1/places/*/reviews").hasAnyRole("USER", "ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/v1/places/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/v1/places/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/v1/places/**").hasRole("ADMIN")
-                .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                .anyRequest().authenticated())
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                // CSRF disabled: an toàn vì refresh-token cookie dùng SameSite=Strict (xem
+                // AuthController#setRefreshTokenCookie).
+                // Nếu đổi SameSite sang Lax/None, PHẢI bật lại CSRF protection cho
+                // /auth/refresh và /auth/logout.
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> writeErrorResponse(response,
+                                HttpServletResponse.SC_UNAUTHORIZED,
+                                "Unauthorized", "Authentication required", request.getRequestURI()))
+                        .accessDeniedHandler((request, response, accessDeniedException) -> writeErrorResponse(response,
+                                HttpServletResponse.SC_FORBIDDEN,
+                                "Forbidden", "You do not have permission to access this resource",
+                                request.getRequestURI())))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/actuator/health").permitAll()
+                        .requestMatchers("/error").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/places/**", "/api/v1/categories/**",
+                                "/api/v1/reviews/places/**")
+                        .permitAll()
+                        // More-specific POST rule must come before the wildcard ADMIN rule below
+                        .requestMatchers(HttpMethod.POST, "/api/v1/places/*/reviews").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/places/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/places/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/places/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                        .anyRequest().authenticated())
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
     private void writeErrorResponse(HttpServletResponse response, int status,
-                                    String error, String message, String path) throws IOException {
+            String error, String message, String path) throws IOException {
         ApiError apiError = ApiError.builder()
                 .status(status)
                 .error(error)
