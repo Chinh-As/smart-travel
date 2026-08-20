@@ -84,12 +84,25 @@ origins = [
 ]
 
 cors_env = os.getenv("CORS_ALLOWED_ORIGINS")
+allow_origin_regex = "https://.*\\.vercel\\.app|http://localhost:.*|http://127\\.0\\.0\\.1:.*"
 if cors_env:
-    origins.extend([o.strip() for o in cors_env.split(",") if o.strip()])
+    static_origins = []
+    regex_patterns = [allow_origin_regex]
+    for o in cors_env.split(","):
+        o = o.strip().replace('"', '').replace("'", "")
+        if not o:
+            continue
+        if "*" in o:
+            regex_patterns.append("^" + re.escape(o).replace(r"\*", ".*") + "$")
+        else:
+            static_origins.append(o)
+    origins.extend(static_origins)
+    allow_origin_regex = "|".join(regex_patterns)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex=allow_origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -44,7 +44,14 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(allowedOrigins);
+        List<String> origins = allowedOrigins != null ? new java.util.ArrayList<>(allowedOrigins) : new java.util.ArrayList<>();
+        if (!origins.contains("https://*.vercel.app")) {
+            origins.add("https://*.vercel.app");
+        }
+        if (!origins.contains("http://localhost:*")) {
+            origins.add("http://localhost:*");
+        }
+        config.setAllowedOriginPatterns(origins);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true); // bắt buộc để cookie refresh token được gửi kèm
